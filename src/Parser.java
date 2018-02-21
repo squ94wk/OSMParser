@@ -78,10 +78,10 @@ public class Parser {
 
   private static boolean processSentence(final BufferedReader reader, final BufferedWriter writer)
       throws Exception {
-    StringBuilder builder = new StringBuilder("");
+    final StringBuilder builder = new StringBuilder("");
     String read;
     String topLevel = "";
-    Stack<String> tags = new Stack<>();
+    final Stack<String> tags = new Stack<>();
     while ((read = reader.readLine()) != null) {
       //Logging
       if (lineCounter % 250000 == 0) {
@@ -90,13 +90,12 @@ public class Parser {
       }
       lineCounter++;
 
-      String tag = openingTag(read, tags);
+      final String tag = openingTag(read, tags);
       if (tags.empty()) {
         //just content from previous tag
         builder.append(read).append("\r\n");
       } else {
         if (tag.isEmpty()) {
-          tag = tags.peek();
           builder.append(read).append("\r\n");
         } else if (nativeTags.contains(tag)) {
           builder.append(read).append("\r\n");
@@ -120,7 +119,7 @@ public class Parser {
       // throw new Exception("Wrong OSM format.");
     }
 
-    String sentence = builder.toString();
+    final String sentence = builder.toString();
 
     if (sentence.isEmpty() || !tags.empty()) {
       return false;
@@ -141,8 +140,8 @@ public class Parser {
     final Matcher matcher = Pattern.compile("(lon|lat)=\"-?\\d+\\.?\\d*").matcher(read);
     yStr = matcher.find() ? matcher.group() : "nan";
     xStr = matcher.find() ? matcher.group() : "nan";
-    double x = Double.parseDouble(xStr.substring(5, xStr.length()));
-    double y = Double.parseDouble(yStr.substring(5, yStr.length()));
+    final double x = Double.parseDouble(xStr.substring(5, xStr.length()));
+    final double y = Double.parseDouble(yStr.substring(5, yStr.length()));
 
     // inside bounds
     final boolean copy =
@@ -150,7 +149,8 @@ public class Parser {
     // add node to map
     if (copy) {
       final Matcher idMatcher = Pattern.compile("id=\"\\d+").matcher(read);
-      long id = Long.parseLong(idMatcher.find() ? idMatcher.group().substring(4, idMatcher.group().length()) : "0");
+      final long id = Long.parseLong(idMatcher.find() ? idMatcher.group().substring(4, idMatcher
+          .group().length()) : "0");
       nodeSet.add(id);
       nodeCounter++;
     }
@@ -161,7 +161,7 @@ public class Parser {
     final Matcher refMatcher = Pattern.compile("ref=\"\\d+").matcher(sentence);
     while (refMatcher.find()) {
       final String group = refMatcher.group();
-      long id = Long.parseLong(group.substring(5, group.length()));
+      final long id = Long.parseLong(group.substring(5, group.length()));
       if (!nodeSet.contains(id)) {
         return false;
       }
@@ -169,7 +169,8 @@ public class Parser {
 
     //keep way
     final Matcher idMatcher = Pattern.compile("id=\"\\d+").matcher(sentence);
-    long wayId = Long.parseLong(idMatcher.find() ? idMatcher.group().substring(4, idMatcher.group().length()) : "");
+    final long wayId = Long.parseLong(idMatcher.find() ? idMatcher.group().substring(4, idMatcher
+        .group().length()) : "");
     waySet.add(wayId);
     return true;
   }
@@ -183,7 +184,8 @@ public class Parser {
 
     //keep relation
     final Matcher idMatcher = Pattern.compile("id=\"\\d+").matcher(sentence);
-    long relId = Long.parseLong(idMatcher.find() ? idMatcher.group().substring(4, idMatcher.group().length()) : "0");
+    final long relId = Long.parseLong(idMatcher.find() ? idMatcher.group().substring(4, idMatcher
+        .group().length()) : "0");
     relSet.add(relId);
     return true;
   }
@@ -201,9 +203,9 @@ public class Parser {
 
   private static boolean shouldAddMember(final String read) {
     final Matcher refMatcher = Pattern.compile("ref=\"\\d+").matcher(read);
-    String wayIdStr = refMatcher.find() ? refMatcher.group() : "";
+    final String wayIdStr = refMatcher.find() ? refMatcher.group() : "";
     if (!wayIdStr.isEmpty()) {
-      long wayId = Long.parseLong(wayIdStr.substring(5, wayIdStr.length()));
+      final long wayId = Long.parseLong(wayIdStr.substring(5, wayIdStr.length()));
       return waySet.contains(wayId);
     } else {
       return false;
@@ -232,8 +234,8 @@ public class Parser {
       return "";
     }
 
-    String group = tagMatcher.group();
-    String tag = group.substring(group.indexOf('<') + 1, group.length() - 1);
+    final String group = tagMatcher.group();
+    final String tag = group.substring(group.indexOf('<') + 1, group.length() - 1);
     tags.push(tag);
     return tag;
   }
@@ -242,7 +244,7 @@ public class Parser {
     if (tags.empty()) {
       return false;
     }
-    String tag = tags.peek();
+    final String tag = tags.peek();
     if (!line.endsWith("/>") && !line.endsWith("</" + tag + ">")) {
       return false;
     }
